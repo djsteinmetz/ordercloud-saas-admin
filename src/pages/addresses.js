@@ -1,6 +1,6 @@
 import './App.css';
-import { useQuery, gql } from '@apollo/client'
-import { useParams, useNavigate } from 'react-router-dom'
+import { useQuery, gql, useApolloClient } from '@apollo/client'
+import { useParams, useNavigate, Link } from 'react-router-dom'
 import {
   Box,
   Skeleton,
@@ -42,13 +42,15 @@ const ADDRESSES = gql`
 `;
 
 function Addresses() {
+  const client = useApolloClient()
+  client.refetchQueries(ADDRESSES)
   const { buyerId } = useParams()
   const navigate = useNavigate()
   const { loading, error, data } = useQuery(ADDRESSES, { variables: { buyerId } });
   return (
-    <Box>
+    <Box paddingLeft={20} paddingRight={20} paddingTop={10} paddingBottom={10}>
       <Box paddingTop={5} paddingBottom={5}>
-        <p style={{ color: "grey" }}>Home {'>'} Buyers {'>'} {data?.addresses?.[0]?.assignments?.[0]?.entity?.name || buyerId}</p>
+        <p style={{ color: "grey" }}><Link to={`/`}>Home</Link> {'>'} Buyers {'>'} {data?.addresses?.[0]?.assignments?.[0]?.entity?.name || buyerId}</p>
       </Box>
       <Box paddingTop={5} paddingBottom={5}>
         <h1 style={{fontSize: 36, fontWeight: "bold"}}>{data?.addresses?.[0]?.assignments?.[0]?.entity?.name || buyerId}</h1>
