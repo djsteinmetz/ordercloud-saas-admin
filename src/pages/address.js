@@ -19,10 +19,25 @@ const ADDRESS = gql`
     firstName
     lastName
     assignments {
-      level
-      entity {
-        id
-        name
+      meta {
+        page
+        pageSize
+        totalCount
+        totalPages
+        itemRange
+        nextPageKey
+      }
+      items {
+        entityID
+        buyerID
+        level
+        isShipping
+        isBilling
+        entity {
+          id
+          name
+          description
+        }
       }
     }
   }
@@ -34,10 +49,9 @@ export default function Address() {
     const navigate = useNavigate()
     const { loading, _, data } = useQuery(ADDRESS, { variables: { buyerId, addressId } });
     const a = data?.address
-    const companyLevelAssignments = a?.assignments?.filter(a => a.level === 'Company')
-    const groupLevelAssignments = a?.assignments?.filter(a => a.level === 'Group')
-    const userLevelAssignments = a?.assignments?.filter(a => a.level === 'User')
-    console.log(companyLevelAssignments)
+    const companyLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'Company')
+    const groupLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'Group')
+    const userLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'User')
     return (
         <Container>
             {loading ? (

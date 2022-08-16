@@ -15,7 +15,6 @@ const httpLink = createHttpLink({
 const authLink = setContext((_, { headers }) => {
   // get the authentication token from local storage if it exists
   const token = document.cookie.split(';').filter(c => c.includes('oc-saas-admin'))[0].split("=")[1];
-  console.log(token)
   // return the headers to the context so httpLink can read them
   return {
     headers: {

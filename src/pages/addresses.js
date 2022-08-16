@@ -19,22 +19,39 @@ import {
 } from '@chakra-ui/react'
 
 const ADDRESSES = gql`
-  query Addresses($buyerId: ID!) {
-  addresses(buyerID: $buyerId) {
-    id
-    addressName
-    street1
-    street2
-    city
-    state
-    zip
-    country
-    firstName
-    lastName
-    assignments {
-      level
-      entity {
-        name
+  query Addresses($buyerId: ID!, $pageSize: Int, $page: Int) {
+  addresses(buyerID: $buyerId, pageSize: $pageSize, page: $page) {
+    meta {
+      page
+      pageSize
+    }
+    items {
+      id
+      addressName
+      street1
+      street2
+      city
+      state
+      zip
+      country
+      firstName
+      lastName
+      xp
+      assignments {
+        meta {
+          page
+          pageSize
+        }
+        items {
+          entity {
+            id
+            name
+            description
+          }
+          level
+          isBilling
+          isShipping
+        }
       }
     }
   }
@@ -50,10 +67,10 @@ function Addresses() {
   return (
     <Box paddingLeft={20} paddingRight={20} paddingTop={10} paddingBottom={10}>
       <Box paddingTop={5} paddingBottom={5}>
-        <p style={{ color: "grey" }}><Link to={`/`}>Home</Link> {'>'} Buyers {'>'} {data?.addresses?.[0]?.assignments?.[0]?.entity?.name || buyerId}</p>
+        <p style={{ color: "grey" }}><Link to={`/`}>Home</Link> {'>'} Buyers {'>'} {data?.addresses?.items?.[0]?.assignments?.items?.[0]?.entity?.name || buyerId}</p>
       </Box>
       <Box paddingTop={5} paddingBottom={5}>
-        <h1 style={{fontSize: 36, fontWeight: "bold"}}>{data?.addresses?.[0]?.assignments?.[0]?.entity?.name || buyerId}</h1>
+        <h1 style={{fontSize: 36, fontWeight: "bold"}}>{data?.addresses?.items?.[0]?.assignments?.items?.[0]?.entity?.name || buyerId}</h1>
       </Box>
       <Tabs variant='soft-rounded' colorScheme='purple' defaultIndex={4}>
   <TabList>
@@ -103,7 +120,7 @@ function Addresses() {
                 )
               })
             ) : (
-              data?.addresses?.map(a => {
+              data?.addresses?.items?.map(a => {
                 return (
                   <Tr key={a.id} onClick={() => navigate(`/${buyerId}/addresses/${a.id}`)}>
                     <Td>{a.addressName ?? "-"}</Td>
