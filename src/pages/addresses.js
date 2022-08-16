@@ -79,7 +79,7 @@ function Addresses() {
   const [page, setPage] = useState(1)
   const { buyerId } = useParams()
   const { loading, error, data, refetch } = useQuery(ADDRESSES, { variables: { buyerId, page, pageSize: 5 } });
-  const search = (term) => refetch({buyerId, search: term})
+  const search = (term) => refetch({buyerId, page: 1, pageSize: 5, search: term})
   return (
     <Box paddingLeft={20} paddingRight={20} paddingTop={10} paddingBottom={10}>
       <Box paddingTop={5} paddingBottom={5}>
