@@ -50,10 +50,20 @@ export default function Address() {
     const { loading, _, data } = useQuery(ADDRESS, { variables: { buyerId, addressId } });
     const a = data?.address
     const companyLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'Company')
-    const groupLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'Group')
-    const userLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'User')
+    const userOrGroupLevelAssignments = a?.assignments?.items?.filter(a => a.level === 'Group' || a.level === 'User')
+
+    const getDefaultIndex = (companyAssignments, userOrGroupAssignments) => {
+        let index = 0
+        if (companyAssignments?.length > 0 && userOrGroupAssignments?.length === 0) index = 1
+        if (companyAssignments?.length === 0 && userOrGroupAssignments?.length > 0) index = 2
+        if (companyAssignments?.length > 0 && userOrGroupAssignments?.length > 0) index = 1
+        if (userOrGroupAssignments?.length > 0) index = 2
+        console.log(index)
+        return index
+    }
+
     return (
-        <Container>
+        <Box paddingTop={5} paddingBottom={5} paddingLeft={"40px"} paddingRight={"40px"}>
             {loading ? (
                 <Stack>
                     <Skeleton height='20px' />
@@ -69,19 +79,22 @@ export default function Address() {
                     <p>{a?.addressName ?? "-"}</p>
                     <p>{a?.firstName ? `${a?.firstName} ${a?.lastName}` : "-"}</p>
                     <p>{`${a?.street1} ${a?.street2 ? `, ${a?.street2}` : ``}, ${a?.city}, ${a?.state}, ${a?.zip}, ${a?.country}`}</p>
-                    <Box paddingTop={5} paddingBottom={5}>
-                        <Tabs variant='soft-rounded' colorScheme='purple'>
-                            <TabList>
-                                <Tab>This buyer</Tab>
-                                <Tab>Specific groups</Tab>
-                                <Tab>Specific users</Tab>
+                    <Box backgroundColor="#FAFAFA" padding="24px" borderRadius="16px">
+                        <Box paddingBottom={5}>
+                            <p style={{ fontSize: 18, fontWeight: "bold", color: "rgba(0, 0, 0, 0.85)" }}>Assigned to</p>
+                        </Box>
+                        <Tabs variant='soft-rounded' colorScheme='purple' defaultIndex={getDefaultIndex(companyLevelAssignments, userOrGroupLevelAssignments)}>
+                            <TabList style={{backgroundColor: "white", borderRadius: "99px", border: "1px solid rgba(0, 0, 0, 0.1", padding: "4px", width: "fit-content"}}>
                                 <Tab>No one</Tab>
+                                <Tab>This buyer</Tab>
+                                <Tab>{`Specific groups & users`}</Tab>
                             </TabList>
                             <TabPanels>
+                                <TabPanel></TabPanel>
                                 <TabPanel>
-                                    {companyLevelAssignments?.map(a => {
+                                    {companyLevelAssignments?.map((a, i) => {
                                         return (
-                                            <Box>
+                                            <Box key={i}>
                                                 <p>{a?.entity?.name}</p>
                                                 <p style={{color: "grey"}}>{a?.entity?.id}</p>
                                             </Box>
@@ -89,33 +102,20 @@ export default function Address() {
                                     })}
                                 </TabPanel>
                                 <TabPanel>
-                                {groupLevelAssignments?.map(a => {
+                                    {userOrGroupLevelAssignments?.map((a, i) => {
                                         return (
-                                            <Box>
+                                            <Box key={i}>
                                                 <p>{a?.entity?.name}</p>
-                                                <p style={{color: "grey"}}>{a?.entity?.id}</p>
+                                                <p style={{ color: "grey" }}>{a?.entity?.id}</p>
                                             </Box>
                                         )
                                     })}
-                                </TabPanel>
-                                <TabPanel>
-                                {userLevelAssignments?.map(a => {
-                                        return (
-                                            <Box>
-                                                <p>{a?.entity?.name}</p>
-                                                <p style={{color: "grey"}}>{a?.entity?.id}</p>
-                                            </Box>
-                                        )
-                                    })}
-                                </TabPanel>
-                                <TabPanel>
-                                    {!companyLevelAssignments && !groupLevelAssignments && !userLevelAssignments && "This address is not assigned"}
                                 </TabPanel>
                             </TabPanels>
                         </Tabs>
                     </Box>
                 </>
             )}
-        </Container>
+        </Box>
     )
 }
